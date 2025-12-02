@@ -49,7 +49,7 @@ Open `frontend/index.html` in your browser.
 Configure the following in Lambda:
 ```
 APP_MODE=aws
-AWS_REGION=ap-southeast-2
+AWS_REGION=ap-southeast-1
 S3_BUCKET=axrail-bot-content
 CONTENT_MANIFEST_KEY=current.json
 BEDROCK_MODEL_ID=amazon.nova-lite-v1:0
@@ -59,7 +59,7 @@ LOG_LEVEL=INFO
 ### Building and Deploying
 Install dependencies into the Lambda package:
 ```bash
-pip install -r requirements/service.txt -t lambda_package/
+pip install -r requirements/chat_service.txt -t lambda_package/
 cp -r api/ app/ lambda_package/
 cd lambda_package && zip -r ../deployment.zip .
 ```
