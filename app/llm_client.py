@@ -1,4 +1,4 @@
-import boto3, json
+import boto3, json, os
 from .config import AWS_REGION, BEDROCK_MODEL_ID, APP_MODE
 from app.logger import logger
 
@@ -6,9 +6,15 @@ _bedrock = None
 
 def _get_bedrock_client():
     global _bedrock
+
     if _bedrock is None:
-        logger.info("creating Bedrock client", extra={"region": AWS_REGION})
-        _bedrock = boto3.client("bedrock-runtime", region_name=AWS_REGION)
+        bedrock_region = os.getenv("BEDROCK_REGION", AWS_REGION)
+        logger.info(
+            "creating Bedrock client",
+            extra={"aws_region": AWS_REGION, "bedrock_region": bedrock_region},
+        )
+        _bedrock = boto3.client("bedrock-runtime", region_name=bedrock_region)
+
     return _bedrock
 
 def generate_answer(prompt: str) -> str:
@@ -22,15 +28,27 @@ def generate_answer(prompt: str) -> str:
     })
     logger.debug(f"using prompt: {prompt[:200]}...")
     body = {
-        "prompt": {prompt},
+        "anthropic_version": "bedrock-2023-05-31",
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": prompt,
+                    }
+                ],
+            }
+        ],
         "max_tokens": 512,
         "temperature": 0.2,
+        "top_p": 0.9,
     }
 
-    bedrock = _get_bedrock_client()
+    client = _get_bedrock_client()
 
     try:
-        response = bedrock.invoke_model(
+        response = client.invoke_model(
             modelId=BEDROCK_MODEL_ID,
             body=json.dumps(body),
             contentType="application/json",
@@ -38,24 +56,36 @@ def generate_answer(prompt: str) -> str:
         )
     except Exception as e:
         logger.error("failed Bedrock invocation", extra={"error": str(e)})
-        raise e
-
+        raise e 
+    
+    # Claude 3 response format:
+    # {
+    #   "id": "...",
+    #   "type": "message",
+    #   "role": "assistant",
+    #   "content": [ { "type": "text", "text": "..." } ],
+    #   ...
+    # }
     try:
         response_body = json.loads(response["body"].read())
-        results = response_body.get("results") or []
-        if not results:
-            logger.error("Bedrock response has no results", extra={"body": response_body})
-            return "Sorry, I couldn't generate a response from the model."
+        content = response_body.get("content", [])
+        if not content or "text" not in content[0]:
+            logger.error(
+                "unexpected Bedrock response format",
+                extra={"body_snippet": str(response_body)[:400]},
+            )
+            return "failed generate response from the model."
 
-        parsed_output = results[0].get("outputText", "").strip()
+        answer = content[0]["text"].strip()
     except Exception as e:
         logger.error("failed to parse Bedrock response", extra={"error": str(e)})
-        return "failed understanding model's response"
-    
-    logger.info("received response from Bedrock", extra={
-        "answer_preview": parsed_output[:200],
-    })
-    return parsed_output
+        return "failed understanding the model's response."
+
+    logger.info(
+        "received response from Bedrock",
+        extra={"answer_preview": answer[:200]},
+    )
+    return answer
 
 def _generate_answer_local(prompt: str) -> str:
     return "This is a mock answer from local"
