@@ -30,7 +30,7 @@ LOG_LEVEL=DEBUG
 
 ### Running the Ingestion Pipeline
 ```bash
-python -m ingestion.run_ingestion
+python -m ingestion.main
 ```
 This generates `local_content.json` with the crawled content.
 
