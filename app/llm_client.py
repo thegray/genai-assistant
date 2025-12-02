@@ -1,7 +1,10 @@
 import boto3, json
-from .config import AWS_REGION, BEDROCK_MODEL_ID
+from .config import AWS_REGION, BEDROCK_MODEL_ID, APP_MODE
 
 def generate_answer(prompt: str) -> str:
+    if APP_MODE == "local":
+        return _generate_answer_local(prompt)
+
     body = {
         "prompt": {prompt},
         "max_tokens": 512,
@@ -25,3 +28,6 @@ def generate_answer(prompt: str) -> str:
     response_body  = json.loads(response["body"].read())
     parsed_output = response_body.get('results')[0].get('outputText')
     return parsed_output
+
+def _generate_answer_local(prompt: str) -> str:
+    return "This is a mock answer from local"
