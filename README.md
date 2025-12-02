@@ -3,10 +3,12 @@ Axrail Assistant is a GenAI-powered chatbot that answers questions based on cont
 
 ## Components
 **Ingestion Pipeline** : crawls the source website, extracts contents, creates chunks, and uploads to S3 or stores locally in JSON format.
+
 **Chat Service** : build with FastAPI and optionally runs on AWS Lambda.
+
 **Frontend Web UI** : simple HTML/JS chat interface.
 
-## Infra Dependencies
+## Infrastructure Dependencies
 - **Amazon Bedrock** provides the LLM for generative AI capabilities
 - **Amazon S3** stores the crawled content files
 
@@ -40,7 +42,10 @@ uvicorn api.main:app
 ### Accessing the Web UI
 Open `frontend/index.html` in your browser.
 
-		
+## AWS Lambda Deployment
+
+### Environment Variables
+
 Configure the following in Lambda:
 ```
 APP_MODE=aws
@@ -63,15 +68,17 @@ Upload `deployment.zip` to Lambda.
 ### API Gateway Configuration
 Configure a POST endpoint at `/chat` with Lambda proxy integration and enable CORS for the frontend.
 
-		
 ### Frontend Configuration
 Update the API URL in the web UI:
 ```javascript
 const API_URL = "https://xxxx.execute-api.ap-southeast-1.amazonaws.com/chat";
 ```
+
 ## Website Crawler
 
 ### Running the Ingestion Pipeline
+Crawl and upload content to S3:
+
 ```bash
 INGESTION_MODE=s3 python -m ingestion.main
 ```
@@ -94,6 +101,4 @@ The ingestion process performs the following steps:
 7. Chat service or Lambda detects new content and reloads automatically
 
 ## Frontend
-Frontend Web UI
-Simple, clean HTML/JS file
 The web UI is a lightweight HTML/JS interface that calls the `/chat` endpoint to display conversation messages. It works seamlessly in both local development and deployed environments.
