@@ -14,8 +14,4 @@ cp -r api lambda_package/api
 cp -r app lambda_package/app
 cp local_content.json lambda_package/local_content.json
 
-echo "[*] Creating deployment zip..."
-cd lambda_package
-zip -r ../lambda_deploy.zip .
-
-echo "[*] Done. Deployment zip at ./lambda_deploy.zip"
+echo "[*] Done."
