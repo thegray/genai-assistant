@@ -6,7 +6,7 @@ from app.retrieval import find_relevant_chunks
 from app.prompt_builder import build_prompt
 from app.llm_client import generate_answer
 from fastapi.middleware.cors import CORSMiddleware
-
+from mangum import Mangum
 import uuid, time
 
 app = FastAPI(title="Axrail GenAI Assistant")
@@ -81,3 +81,5 @@ def chat(request: ChatRequest):
 
     logger.info("returning answer to client", extra={"answer_preview": answer[:120]})
     return ChatResponse(answer=answer, sources=relevant)
+
+handler = Mangum(app)
