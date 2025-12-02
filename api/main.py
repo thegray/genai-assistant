@@ -5,9 +5,19 @@ from app.content_loader import get_chunks
 from app.retrieval import find_relevant_chunks
 from app.prompt_builder import build_prompt
 from app.llm_client import generate_answer
+from fastapi.middleware.cors import CORSMiddleware
+
 import uuid, time
 
 app = FastAPI(title="Axrail GenAI Assistant")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],     # for dev: allow all
+    allow_credentials=True,
+    allow_methods=["*"],     # allows POST, OPTIONS, GET, etc.
+    allow_headers=["*"],     # allows Content-Type, etc.
+)
 
 @app.middleware("http")
 async def add_request_id_middleware(request: Request, call_next):
