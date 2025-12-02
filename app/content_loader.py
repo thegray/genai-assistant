@@ -20,8 +20,12 @@ def _load_chunks_from_s3(key: str) -> List[Chunk]:
     return [Chunk(**c) for c in data]
 
 def _load_chunks_local():
-    with open(LOCAL_CONTENT_FILE, "r", encoding="utf-8") as f:
-        data = json.load(f)
+    try:
+        with open(LOCAL_CONTENT_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError as e:
+        logger.error("local_content file not found")
+        return []
     return [Chunk(**c) for c in data]
 
 def get_chunks() -> Tuple[List[Chunk], str]:

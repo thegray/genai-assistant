@@ -12,6 +12,7 @@ python3 -m pip install -r requirements/chat_service.txt -t lambda_package/
 echo "[*] Copying application code..."
 cp -r api lambda_package/api
 cp -r app lambda_package/app
+cp local_content.json lambda_package/local_content.json
 
 echo "[*] Creating deployment zip..."
 cd lambda_package
