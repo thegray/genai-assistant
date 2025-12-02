@@ -1,14 +1,15 @@
 # Overview
 Axrail Assistant is a GenAI-powered chatbot that answers questions based on content crawled from the Axrail website.
 
-## Components
+## Architecture
+### Components
 **Ingestion Pipeline** : crawls the source website, extracts contents, creates chunks, and uploads to S3 or stores locally in JSON format.
 
 **Chat Service** : build with FastAPI and optionally runs on AWS Lambda.
 
 **Frontend Web UI** : simple HTML/JS chat interface.
 
-## Infrastructure Dependencies
+### Infrastructure Dependencies
 - **Amazon Bedrock** provides the LLM for generative AI capabilities
 - **Amazon S3** stores the crawled content files
 
